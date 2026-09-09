@@ -1,84 +1,166 @@
 from flask import Flask
-from datetime import datetime
-from zoneinfo import ZoneInfo
 
 app = Flask(__name__)
 
 @app.route("/")
 def home():
+    return """
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    ist = datetime.now(ZoneInfo("Asia/Kolkata"))
-    cet = datetime.now(ZoneInfo("Europe/Stockholm"))
+    <title>Good Morning Cloud!</title>
 
-    ist_time = ist.strftime("%I:%M:%S %p")
-    cet_time = cet.strftime("%I:%M:%S %p")
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #dff6ff, #ffffff);
+        }
 
-    return f"""
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        .card {
+            background: rgba(255,255,255,0.9);
+            padding: 40px 25px;
+            border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+            width: 85%;
+            max-width: 600px;
+        }
 
-        <title>Good Morning Cloud!</title>
+        .cloud {
+            font-size: 50px;
+        }
 
-        <style>
-            body {{
-                margin: 0;
-                height: 100vh;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                text-align: center;
-                font-family: Arial, sans-serif;
-                background: linear-gradient(135deg, #dff6ff, #ffffff);
-            }}
+        h1 {
+            font-size: 42px;
+            color: #2878b5;
+            margin: 15px 0 35px;
+        }
 
-            .card {{
-                background: rgba(255,255,255,0.85);
-                padding: 40px 25px;
-                border-radius: 25px;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.12);
-                width: 85%;
-                max-width: 500px;
-            }}
+        .time-row {
+            font-size: 20px;
+            color: #444;
+            margin: 25px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
 
-            h1 {{
-                font-size: 42px;
-                color: #2878b5;
-                margin-bottom: 35px;
-            }}
+        .time {
+            font-size: 25px;
+            font-weight: bold;
+            color: #2878b5;
+        }
 
-            p {{
-                font-size: 21px;
-                color: #444;
-                margin: 18px 0;
-            }}
+        .zone {
+            font-size: 14px;
+            color: #666;
+        }
 
-            .cloud {{
-                font-size: 45px;
-            }}
-        </style>
-    </head>
+        @media (max-width: 600px) {
 
-    <body>
+            h1 {
+                font-size: 32px;
+            }
 
-        <div class="card">
+            .time-row {
+                font-size: 17px;
+            }
 
-            <div class="cloud">☁️</div>
+            .time {
+                font-size: 22px;
+            }
 
-            <h1>Good Morning Cloud!</h1>
+            .card {
+                padding: 30px 15px;
+            }
+        }
+    </style>
+</head>
 
-            <p>🇮🇳 <b>Now your time is:</b><br>
-            {ist_time} IST</p>
+<body>
 
-            <p>🇸🇪 <b>My time is:</b><br>
-            {cet_time} CET</p>
+<div class="card">
 
-        </div>
+    <div class="cloud">☁️</div>
 
-    </body>
-    </html>
-    """
+    <h1>Good Morning Cloud!</h1>
+
+    <div class="time-row">
+        🇮🇳
+        <b>Now your time is:</b>
+        <span id="ist" class="time"></span>
+        <span class="zone">IST</span>
+    </div>
+
+    <div class="time-row">
+        🇸🇪
+        <b>My time is:</b>
+        <span id="sweden" class="time"></span>
+        <span id="swedenZone" class="zone"></span>
+    </div>
+
+</div>
+
+<script>
+
+function updateTime() {
+
+    const now = new Date();
+
+    // India / Kolkata time
+    const indiaTime = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'Asia/Kolkata',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true
+    }).format(now);
+
+    // Sweden / Stockholm time
+    const swedenTime = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'Europe/Stockholm',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true
+    }).format(now);
+
+    document.getElementById("ist").textContent = indiaTime;
+    document.getElementById("sweden").textContent = swedenTime;
+
+    // Automatically detect CET / CEST
+    const parts = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'Europe/Stockholm',
+        timeZoneName: 'short'
+    }).formatToParts(now);
+
+    const zone = parts.find(
+        part => part.type === 'timeZoneName'
+    );
+
+    document.getElementById("swedenZone").textContent =
+        zone ? zone.value : "Sweden Time";
+}
+
+updateTime();
+
+// Update every second
+setInterval(updateTime, 1000);
+
+</script>
+
+</body>
+</html>
+"""
 
 if __name__ == "__main__":
     app.run()
