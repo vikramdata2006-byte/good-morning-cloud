@@ -133,9 +133,9 @@ def home():
 
 <div class="card">
 
-    <div class="cloud">☁️</div>
+    <div class="cloud">👋</div>
 
-    <h1>Good Morning Cloud!</h1>
+    <h1>Good Morning Meghaaa!</h1>
 
 
     <!-- INDIA TIME -->
